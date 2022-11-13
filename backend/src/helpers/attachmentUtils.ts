@@ -1,20 +1,22 @@
 import * as AWS from 'aws-sdk'
-// import * as AWSXRay from 'aws-xray-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
+
 import { createLogger } from '../utils/logger'
 
-// const XAWS = AWSXRay.captureAWS(AWS)
+if (process.env.IS_OFFLINE) {
+  AWSXRay.setContextMissingStrategy('LOG_ERROR')
+}
+
+const XAWS = AWSXRay.captureAWS(AWS)
 
 const logger = createLogger('AttachmentUtil')
 
 // The file Storage logic
-const s3 = new AWS.S3({
-  signatureVersion: 'v4'
-})
-
 export class AttachmentUtil {
   constructor(
-    private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
-    private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
+    private readonly s3Client: AWS.S3 = createS3Client(),
+    private readonly bucketName: string = process.env.ATTACHMENT_S3_BUCKET,
+    private readonly urlExpiration: string = process.env.SIGNED_URL_EXPIRATION
   ) {}
 
   /**
@@ -34,7 +36,7 @@ export class AttachmentUtil {
    * @returns {string} pre-signed URL
    */
   getUploadUrl(todoId: string): string {
-    return s3.getSignedUrl('putObject', {
+    return this.s3Client.getSignedUrl('putObject', {
       Bucket: this.bucketName,
       Key: todoId,
       Expires: parseInt(this.urlExpiration, 10)
@@ -43,7 +45,7 @@ export class AttachmentUtil {
 
   async getTodoAttachment(todoId: string): Promise<boolean> {
     try {
-      const response = await s3
+      const response = await this.s3Client
         .getObject({
           Bucket: this.bucketName,
           Key: todoId
@@ -60,7 +62,7 @@ export class AttachmentUtil {
   }
 
   async deleteTodoAttachment(todoId: string): Promise<boolean> {
-    const response = await s3
+    const response = await this.s3Client
       .deleteObject({
         Bucket: this.bucketName,
         Key: todoId
@@ -69,4 +71,11 @@ export class AttachmentUtil {
 
     return response && response.DeleteMarker
   }
+}
+
+function createS3Client() {
+  const s3: AWS.S3 = new XAWS.S3({
+    signatureVersion: 'v4'
+  })
+  return s3
 }
