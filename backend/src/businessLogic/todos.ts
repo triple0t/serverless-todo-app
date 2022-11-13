@@ -1,10 +1,10 @@
-import { TodosAccess } from './todosAcess'
+import { TodosAccess } from '../data/todosAcess'
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
-import { AttachmentUtil } from './attachmentUtils'
+import { AttachmentUtil } from '../fileManagement/attachmentUtils'
 import { QxtraQueryParam } from '../models/ExtraQueryParam'
 
 // BusinessLogic for todo app
