@@ -1,30 +1,30 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
+
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
-import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+
+import { getTodoById } from '../../helpers/todos'
 import { getUserId } from '../utils'
-import { createTodo } from '../../helpers/todos'
 import { createLogger } from '../../utils/logger'
 
-const logger = createLogger('TodoCreator')
+const logger = createLogger('TodoFetchSingle')
 
-// Create TODO item for the current user
+// Get a single TODO item for a current user
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.log('event: ', event)
 
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
-
+    const todoId = event.pathParameters.todoId;
     const userId = getUserId(event)
 
-    const item = await createTodo(userId, newTodo)
+    const items = await getTodoById(userId, todoId)
 
-    logger.log('item: ', item)
+    logger.log('items: ', items)
 
     return {
-      statusCode: 201,
-      body: JSON.stringify({ item })
+      statusCode: 200,
+      body: JSON.stringify({items})
     }
   }
 )
