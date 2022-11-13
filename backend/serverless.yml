@@ -61,34 +61,6 @@ custom:
         version: '1.0.0'
         title: serverless-todo-app
         description: serverless-todo-app
-    models:
-      - name: CreateTodoModel
-        contentType: "application/json"
-        schema:
-          required:
-            - name
-            - dueDate
-          properties:
-            name:
-              minLength: 1
-              type: string
-            dueDate:
-              type: string
-      - name: UpdateTodoModel
-        contentType: "application/json"
-        schema:
-          required:
-            - name
-            - dueDate
-            - done
-          properties:
-            name:
-              minLength: 1
-              type: string
-            dueDate:
-              type: string
-            done:
-              type: boolean
 
 
 
@@ -142,8 +114,6 @@ functions:
           documentation:
             summary: "Create a new todo item"
             description: "Create a new todo item"
-            requestModels:
-              "application/json": CreateTodoModel
           request:
            schemas:
              application/json: ${file(models/create-todo-model.json)}
@@ -166,8 +136,6 @@ functions:
           documentation:
             summary: "Update a todo item"
             description: "Update a todo item"
-            requestModels:
-              "application/json": UpdateTodoModel
           request:
             schemas:
               application/json: ${file(models/update-todo-model.json)}
