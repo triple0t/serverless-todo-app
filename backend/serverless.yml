@@ -151,7 +151,6 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-          - dynamodb:GetItem
         Resource: arn:aws:dynamodb:${self:provider.region}:746979607418:table/${self:provider.environment.TODOS_TABLE}             
 
   # Update todo lambda function
