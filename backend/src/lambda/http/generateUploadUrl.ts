@@ -14,7 +14,7 @@ const logger = createLogger('TodoUploadUrl')
  */
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.log('event: ', event)
+    logger.info('event: ', event)
 
     const todoId = event.pathParameters.todoId
     const userId = getUserId(event)
@@ -23,7 +23,7 @@ export const handler = middy(
       uploadUrl: await createAttachmentPresignedUrl(userId, todoId)
     }
 
-    logger.log('body: ', body)
+    logger.info('body: ', body)
 
     return {
       statusCode: 200,
