@@ -25,6 +25,10 @@ export default class App extends Component<AppProps, AppState> {
     this.handleLogout = this.handleLogout.bind(this)
   }
 
+  componentDidMount(): void {
+    this.props.auth.restoreAuthInfo()
+  }
+
   handleLogin() {
     this.props.auth.login()
   }

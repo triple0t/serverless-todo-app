@@ -24,6 +24,7 @@ export default class Auth {
     this.getAccessToken = this.getAccessToken.bind(this);
     this.getIdToken = this.getIdToken.bind(this);
     this.renewSession = this.renewSession.bind(this);
+    this.restoreAuthInfo = this.restoreAuthInfo.bind(this);
   }
 
   login() {
@@ -33,15 +34,30 @@ export default class Auth {
   handleAuthentication() {
     this.auth0.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
-        console.log('Access token: ', authResult.accessToken)
-        console.log('id token: ', authResult.idToken)
+        console.log('[handleAuthentication] authResult: ', authResult);
         this.setSession(authResult);
+
+        // save auth info in session storage
+        sessionStorage.setItem(authConfig.appName, JSON.stringify({...authResult, expiresAt: this.expiresAt}))
       } else if (err) {
         this.history.replace('/');
-        console.log(err);
+        console.log('[handleAuthentication] error:', err);
         alert(`Error: ${err.error}. Check the console for further details.`);
       }
     });
+  }
+
+  restoreAuthInfo() {
+    const authDataStr = sessionStorage.getItem(authConfig.appName);
+
+    if (!authDataStr || typeof authDataStr !== 'string') return;
+
+    const authData = JSON.parse(authDataStr);
+    
+    if (new Date().getTime() < authData.expiresAt) {
+      // if session has not expired
+      this.setSession(authData);
+    }
   }
 
   getAccessToken() {
@@ -86,6 +102,8 @@ export default class Auth {
 
     // Remove isLoggedIn flag from localStorage
     localStorage.removeItem('isLoggedIn');
+
+    sessionStorage.removeItem(authConfig.appName);
 
     this.auth0.logout({
       return_to: window.location.origin
