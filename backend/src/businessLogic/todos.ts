@@ -70,7 +70,7 @@ export async function createTodo(
     dueDate: todoBody.dueDate,
     createdAt: new Date().toISOString(),
     done: false,
-    attachmentUrl: attachmentUtil.createAttachmentUrl(todoId)
+    // attachmentUrl would be added later
   }
 
   return todosAccess.createTodo(newTodoObj)
@@ -95,7 +95,7 @@ export async function deleteTodo(userId: string, todoId: string) {
 
   if (!todoDeleted) return false
 
-  const checkForTodoAttachment = await attachmentUtil.getTodoAttachment(todoId)
+  const checkForTodoAttachment = await attachmentUtil.getTodoAttachment(userId, todoId)
 
   logger.info(
     '[BL > deleteTodo] checkForTodoAttachment: ',
@@ -104,7 +104,7 @@ export async function deleteTodo(userId: string, todoId: string) {
 
   if (checkForTodoAttachment) {
     // when a todo item is deleted, remove the todo Attachment
-    const deletedAttachment = await attachmentUtil.deleteTodoAttachment(todoId)
+    const deletedAttachment = await attachmentUtil.deleteTodoAttachment(userId, todoId)
 
     logger.info('[BL > deleteTodo] deletedAttachment: ', deletedAttachment)
   }
@@ -118,5 +118,5 @@ export async function createAttachmentPresignedUrl(
 ) {
   await checkUserCanAccessTodo(userId, todoId)
 
-  return attachmentUtil.getUploadUrl(todoId)
+  return attachmentUtil.getUploadUrl(userId, todoId)
 }
